@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, BookOpen, Sparkles, Loader2 } from 'lucide-react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const LectyDemo = () => {
   const [messages, setMessages] = useState([
@@ -18,7 +17,7 @@ const LectyDemo = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim()) return;
 
     const userMessage = { id: Date.now(), text: input, sender: "user" };
@@ -26,41 +25,25 @@ const LectyDemo = () => {
     setInput('');
     setIsTyping(true);
 
-    try {
-      const apiKey = import.meta.env.VITE_LECTY_API_KEY;
-      if (!apiKey) {
-         setTimeout(() => {
-            setMessages(prev => [...prev, { id: Date.now() + 1, text: "Parece que no has configurado la VITE_LECTY_API_KEY en el archivo .env. Por favor agrégala para que podamos platicar.", sender: "bot", isError: true }]);
-            setIsTyping(false);
-         }, 1000);
-         return;
+    const userInput = input.toLowerCase();
+
+    // Simulated static responses for the demo
+    setTimeout(() => {
+      let reply = "¡Qué interesante! Cuéntame más sobre eso. 🤔📖";
+      
+      if (userInput.includes("hola") || userInput.includes("saludos")) {
+        reply = "¡Hola de nuevo! ¿Listos para la aventura de hoy? 🚀📚";
+      } else if (userInput.includes("cuento") || userInput.includes("historia")) {
+        reply = "¡Me encantan los cuentos! ¿Tienes alguno favorito en mente? Yo acabo de leer uno sobre un dragón amigable. 🐉✨";
+      } else if (userInput.includes("no se") || userInput.includes("no sé") || userInput.includes("ayuda")) {
+        reply = "¡No te preocupes! ¿Te gustan más las historias de magia, de animales o del espacio exterior? 🌟🦁";
+      } else if (userInput.includes("magia") || userInput.includes("espacio") || userInput.includes("animales")) {
+        reply = "¡Esa es una excelente elección! Imagina todo lo que podemos descubrir. ¿Te gustaría leer un pequeño fragmento juntos? 🧐✨";
       }
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-      
-      const promptContext = `
-        Eres Lecty, un agente conversacional amigable diseñado para promover la lectura en niños. 
-        Tus respuestas deben ser entusiastas, empáticas, cortas y fáciles de entender para un niño de 6 a 12 años.
-        Utiliza emojis. Motiva al niño a leer y hazle preguntas sobre libros.
-        
-        Historial de la conversación:
-        ${messages.map(m => `${m.sender === 'bot' ? 'Lecty' : 'Niño'}: ${m.text}`).join('\n')}
-        Niño: ${input}
-        Lecty:
-      `;
-
-      const result = await model.generateContent(promptContext);
-      const response = await result.response;
-      const text = response.text();
-
-      setMessages(prev => [...prev, { id: Date.now() + 1, text, sender: "bot" }]);
-    } catch (error) {
-      console.error(error);
-      setMessages(prev => [...prev, { id: Date.now() + 1, text: "Uy, tuve un pequeño problema técnico pensando mi respuesta. ¡Intenta de nuevo!", sender: "bot", isError: true }]);
-    } finally {
+      setMessages(prev => [...prev, { id: Date.now() + 1, text: reply, sender: "bot" }]);
       setIsTyping(false);
-    }
+    }, 1500);
   };
 
   return (
@@ -75,7 +58,7 @@ const LectyDemo = () => {
         </div>
         <div className="px-3 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-2 self-start md:self-auto">
           <Sparkles className="w-3.5 h-3.5" />
-          Powered by Gemini
+          Simulated AI Demo
         </div>
       </div>
 
